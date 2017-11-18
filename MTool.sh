@@ -15,10 +15,12 @@ IsOSX=false
 if [[ $SysName ==  MINGW* ]] || [[ $SysName ==  CYGWIN* ]] || [[ $SysName ==  windows* ]] ; then
 	IsWindows=true
 	export MToolExecutable="$DIR/General/Windows/MTool"
+	export MToolDirectory="$DIR/General/Windows"
 elif [[ $SysName ==  Darwin* ]] ; then
 	IsOSX=true
 	if [[ $ProcessorArch == i*86 ]] ; then
 		export MToolExecutable="$DIR/General/OSX/x86/MTool"
+		export MToolDirectory="$DIR/General/OSX/x86"
 	elif [[ $ProcessorArch == x86_64 ]] ; then
 		export MToolExecutable="$DIR/General/OSX/x64/MTool"
 	else
@@ -28,8 +30,10 @@ elif [[ $SysName ==  Darwin* ]] ; then
 elif [[ $SysName ==  Linux* ]] ; then
 	if [[ $ProcessorArch == i*86 ]] ; then
 		export MToolExecutable="$DIR/General/Linux/x86/MTool"
+		export MToolDirectory="$DIR/General/Linux/x86"
 	elif [[ $ProcessorArch == x86_64 ]] ; then
 		export MToolExecutable="$DIR/General/Linux/x64/MTool"
+		export MToolDirectory="$DIR/General/Linux/x64"
 	else
 		echo $ProcessorArch is not a recognized architechture and no build of MTool is available for it
 		exit 1

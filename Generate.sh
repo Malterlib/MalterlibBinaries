@@ -41,6 +41,7 @@ if [[ $IsOSX == true ]] ; then
 		Conf_Version=`xcodebuild -version | grep Xcode | awk -F ' ' {'print $2'} | awk -F '.' {'print $1'}`
 	fi
 elif [[ $IsWindows == true ]] ; then
+	Conf_Safe=true
 	if [ ! "$VisualStudioVersion" == "" ]; then
 		Conf_Version=$VisualStudioVersion
 	else
@@ -77,11 +78,9 @@ else
 fi
 
 if [[ "$Conf_Safe" == "true" ]] ; then
-	if [ ! -e BuildSystem/MTool ] ; then
-		mkdir -p BuildSystem
-		cp $MToolExecutable BuildSystem/
-	fi
-	MToolExecutable=BuildSystem/MTool
+	mkdir -p "$PWD/BuildSystem/MTool"
+	cp -r "$MToolDirectory/"* "$PWD/BuildSystem/MTool/"
+	MToolExecutable="$PWD/BuildSystem/MTool/MTool"
 fi
 
 function DoEcho()
