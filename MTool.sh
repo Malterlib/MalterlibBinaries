@@ -38,6 +38,6 @@ else
 	echo "Couldn't detect system"
 fi
 
-if [[ $# != 0 ]]; then
+if [[ "$MToolSourceOnly" != "true" ]]; then
 	$MToolExecutable "$@"
 fi

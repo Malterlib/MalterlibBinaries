@@ -4,7 +4,7 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-source "$DIR/MTool.sh"
+MToolSourceOnly=true source "$DIR/MTool.sh"
 
 Conf_Safe=false
 Conf_Echo=false
@@ -48,27 +48,13 @@ else
 	Conf_Version=
 fi
 
-while getopts "seo456" opt; do
+while getopts "seo" opt; do
     case "$opt" in
     s)  Conf_Safe=true
         ;;
     o)  Conf_Old=true
         ;;
     e)  Conf_Echo=true
-        ;;
-    6)  Conf_Version=6
-        ;;
-    5)  Conf_Version=5
-        ;;
-    4)  Conf_Version=4
-        ;;
-    2012)  Conf_Version=2012
-        ;;
-    2013)  Conf_Version=2013
-        ;;
-    2015)  Conf_Version=2015
-        ;;
-    2017)  Conf_Version=2017
         ;;
     esac
 done
@@ -77,7 +63,14 @@ shift $((OPTIND-1))
 
 [ "$1" = "--" ] && shift
 
-Conf_Workspace=$1
+ToolType=BuildSystemGen
+
+if [[ "$MalterlibTool" == "true" ]]; then
+	ToolType=Malterlib
+else
+	Conf_Workspace=$1
+	shift
+fi
 
 if [[ "$Conf_Safe" == "true" ]] ; then
 	if [ ! -e BuildSystem/MTool ] ; then
@@ -90,7 +83,7 @@ fi
 function DoEcho()
 {
 	if [[ "$Conf_Echo" == "true" ]] ; then
-		echo $1
+		echo $@
 	fi
 }
 
@@ -102,16 +95,19 @@ function GenerateForVersion()
 		Files=`find . -maxdepth 1 -name '*.MBuildSystem'`
 	fi
 
+	Generator="$1"
+	shift
+
 	for f in $Files ; do
 		if [ "$Conf_Old" == "true" ] ; then
-			DoEcho "$MToolExecutable BuildSystemGen Malterlib.IdsBuildSystem Generator=$1 OutputDirectory=$PWD/BuildSystem/Old"
-			$MToolExecutable BuildSystemGen "$f" "Generator=$1" "OutDir=$PWD/BuildSystem/Old"
+			DoEcho "$MToolExecutable $ToolType $f Generator=$Generator OutDir=$PWD/BuildSystem/Old" "$@"
+			$MToolExecutable $ToolType "$f" "Generator=$Generator" "OutDir=$PWD/BuildSystem/Old" "$@"
 		elif [ "$Conf_Workspace" == "" ] ; then
-			DoEcho "$MToolExecutable BuildSystemGen Malterlib.IdsBuildSystem Generator=$1"
-			$MToolExecutable BuildSystemGen "$f" "Generator=$1"
+			DoEcho "$MToolExecutable $ToolType $f Generator=$Generator" "$@"
+			$MToolExecutable $ToolType "$f" "Generator=$Generator" "$@"
 		else
-			DoEcho "$MToolExecutable BuildSystemGen Malterlib.IdsBuildSystem Generator=$1 Workspace=$Conf_Workspace"
-			$MToolExecutable BuildSystemGen "$f" "Generator=$1" "Workspace=$Conf_Workspace"
+			DoEcho "$MToolExecutable $ToolType $f Generator=$Generator Workspace=$Conf_Workspace" "$@"
+			$MToolExecutable $ToolType "$f" "Generator=$Generator" "Workspace=$Conf_Workspace" "$@"
 		fi
 	done
 }
@@ -119,7 +115,7 @@ function GenerateForVersion()
 
 if [[ "$IsWindows" == "true" ]]; then
 	if [ ! "$Conf_Version" == "" ] ; then
-		GenerateForVersion "VisualStudio$Conf_Version"
+		GenerateForVersion "VisualStudio$Conf_Version" "$@"
 	else
 		WindowsGenerator="VisualStudio2017"
 		if [ -f "Repo.conf" ] ; then
@@ -141,17 +137,19 @@ if [[ "$IsWindows" == "true" ]]; then
 			IFS="$OLDIFS"
 		}
 		fi
-		echo GenerateForVersion "$WindowsGenerator"
-		GenerateForVersion "$WindowsGenerator"
+		echo GenerateForVersion "$WindowsGenerator" "$@"
+		GenerateForVersion "$WindowsGenerator" "$@"
 	fi
 else
 	if [ "$Conf_Version" == "4" ] ; then
-		GenerateForVersion Xcode
+		GenerateForVersion Xcode "$@"
 	elif [ ! "$Conf_Version" == "" ] ; then
-		GenerateForVersion "Xcode$Conf_Version"
+		GenerateForVersion "Xcode$Conf_Version" "$@"
 	else
-		GenerateForVersion "Xcode5"
+		GenerateForVersion "Xcode5" "$@"
 	fi
 fi
 
-echo "Build system generation done"
+if [[ "$MalterlibTool" != "true" ]]; then
+	echo "Build system generation done"
+fi
