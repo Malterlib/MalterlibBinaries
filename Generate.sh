@@ -6,6 +6,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 MToolSourceOnly=true source "$DIR/MTool.sh"
 
+set -e
+
 Conf_Safe=false
 Conf_Echo=false
 Conf_Old=false
@@ -68,8 +70,10 @@ ToolType=BuildSystemGen
 if [[ "$MalterlibTool" == "true" ]]; then
 	ToolType=Malterlib
 else
-	Conf_Workspace=$1
-	shift
+	if (( $# >= 1)); then
+		Conf_Workspace=$1
+		shift
+	fi
 fi
 
 if [[ "$Conf_Safe" == "true" ]] ; then
