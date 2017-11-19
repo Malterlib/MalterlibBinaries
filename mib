@@ -8,7 +8,15 @@ cd "$DIR"
 
 if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
 	# Make sure that lfs is installed
-	git lfs > /dev/null
+	if ! git lfs > /dev/null ; then
+		echo Please install git lfs
+		exit 1
+	fi
+	
+	if ! cat ~/.gitconfig | grep 'filter "lfs"' ; then
+		git lfs install
+	fi
+
 	mkdir -p Binaries
 
 	MalterlibRepoRoot=https://github.com/Malterlib
