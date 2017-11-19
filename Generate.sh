@@ -41,7 +41,6 @@ if [[ $IsOSX == true ]] ; then
 		Conf_Version=`xcodebuild -version | grep Xcode | awk -F ' ' {'print $2'} | awk -F '.' {'print $1'}`
 	fi
 elif [[ $IsWindows == true ]] ; then
-	Conf_Safe=true
 	if [ ! "$VisualStudioVersion" == "" ]; then
 		Conf_Version=$VisualStudioVersion
 	else
@@ -140,7 +139,6 @@ if [[ "$IsWindows" == "true" ]]; then
 			IFS="$OLDIFS"
 		}
 		fi
-		echo GenerateForVersion "$WindowsGenerator" "$@"
 		GenerateForVersion "$WindowsGenerator" "$@"
 	fi
 else
