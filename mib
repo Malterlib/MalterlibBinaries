@@ -20,7 +20,7 @@ if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
 	mkdir -p Binaries
 
 	MalterlibRepoRoot=https://github.com/Malterlib
-	BuildSystemContents=`cat *.MBuildSystem | grep MalterlibRepoRoot`
+	BuildSystemContents=`cat *.MBuildSystem | grep MalterlibRepoRoot || true`
 	echo  BuildSystemContents=$BuildSystemContents
 
 	ToMatch='[ \t]*MalterlibRepoRoot[ \t]+(.*)'
