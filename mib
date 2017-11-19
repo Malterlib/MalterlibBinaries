@@ -19,23 +19,25 @@ if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
 
 	mkdir -p Binaries
 
-	MalterlibRepoRoot=https://github.com/Malterlib
-	BuildSystemContents=`cat *.MBuildSystem | grep MalterlibRepoRoot || true`
-	echo  BuildSystemContents=$BuildSystemContents
+	if [[ "$MalterlibRepoRoot" == "" ]]; then
+		MalterlibRepoRoot=https://github.com/Malterlib
+		BuildSystemContents=`cat *.MBuildSystem | grep MalterlibRepoRoot || true`
+		echo  BuildSystemContents=$BuildSystemContents
 
-	ToMatch='[ \t]*MalterlibRepoRoot[ \t]+(.*)'
-	while [[ $BuildSystemContents =~ $ToMatch ]]; do
-  		BuildSystemContents=${BASH_REMATCH[1]}
-  		break
-	done
+		ToMatch='[ \t]*MalterlibRepoRoot[ \t]+(.*)'
+		while [[ $BuildSystemContents =~ $ToMatch ]]; do
+	  		BuildSystemContents=${BASH_REMATCH[1]}
+	  		break
+		done
 
-	ToMatch='^"(.*)"$'
-	while [[ $BuildSystemContents =~ $ToMatch ]]; do
-  		BuildSystemContents=${BASH_REMATCH[1]}
-  		break
-	done
-	if [[ "$BuildSystemContents" != "" ]]; then
-		MalterlibRepoRoot="$BuildSystemContents"
+		ToMatch='^"(.*)"$'
+		while [[ $BuildSystemContents =~ $ToMatch ]]; do
+	  		BuildSystemContents=${BASH_REMATCH[1]}
+	  		break
+		done
+		if [[ "$BuildSystemContents" != "" ]]; then
+			MalterlibRepoRoot="$BuildSystemContents"
+		fi
 	fi
 
 	if ! [ -e Binaries/Malterlib ]; then
