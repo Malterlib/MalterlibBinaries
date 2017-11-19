@@ -1,0 +1,80 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+set -e
+
+cd "$DIR"
+
+if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
+	# Make sure that lfs is installed
+	git lfs > /dev/null
+	mkdir -p Binaries
+
+	MalterlibRepoRoot=https://github.com/Malterlib
+	BuildSystemContents=`cat *.MBuildSystem | grep MalterlibRepoRoot`
+	echo  BuildSystemContents=$BuildSystemContents
+
+	ToMatch='[ \t]*MalterlibRepoRoot[ \t]+(.*)'
+	while [[ $BuildSystemContents =~ $ToMatch ]]; do
+  		BuildSystemContents=${BASH_REMATCH[1]}
+  		break
+	done
+
+	ToMatch='^"(.*)"$'
+	while [[ $BuildSystemContents =~ $ToMatch ]]; do
+  		BuildSystemContents=${BASH_REMATCH[1]}
+  		break
+	done
+	if [[ "$BuildSystemContents" != "" ]]; then
+		MalterlibRepoRoot="$BuildSystemContents"
+	fi
+
+	if ! [ -e Binaries/Malterlib ]; then
+		git clone $MalterlibRepoRoot/MalterlibBinaries.git Binaries/Malterlib
+	fi
+
+	if ! [ -e Malterlib/Core ]; then
+		git clone $MalterlibRepoRoot/Malterlib_Core.git Malterlib/Core
+	fi
+fi
+
+SysName=$(uname -s)
+
+BinariesDir="$PWD/Binaries/Malterlib"
+
+if [[ $SysName ==  MINGW* ]] || [[ $SysName ==  CYGWIN* ]] || [[ $SysName ==  windows* ]] ; then
+	DependencyFile=BuildSystem/Binaries/Binaries.MalterlibDependency
+
+	MToolSourceOnly=true source ./Binaries/Malterlib/MTool.sh
+	
+	if [ -e "$DependencyFile" ]; then
+		"$MToolExecutable" CheckDependencies Verbose=true "Directory=BuildSystem/Binaries"
+	fi
+	
+	if ! [ -e BuildSystem/Binaries.updated ]; then
+		"$MToolExecutable" DiffCopy "Binaries/Malterlib/General/Windows" "BuildSystem/Binaries/General"
+		"$MToolExecutable" DiffCopy "Binaries/Malterlib/*.sh" "BuildSystem/Binaries" "" 0
+		"$MToolExecutable" TouchOrCreate "BuildSystem/Binaries.updated"
+		ExcludePatterns="*/.git;*/.DS_Store"
+		"$MToolExecutable" BuildDependencies "OutputFile=$DependencyFile" "Output:BuildSystem/Binaries.updated" "Input:${BASH_SOURCE[0]}" "Find:Binaries/Malterlib/*;RIF;33;$ExcludePatterns"
+	fi
+
+	BinariesDir="$PWD/BuildSystem/Binaries"
+fi
+
+Command=$1
+shift
+
+Params="$@"
+
+case "$Command" in
+	generate)
+		"$BinariesDir/Generate.sh" $Params
+	;;
+	setup_only)
+		exit 0
+	;;
+	*)
+		MalterlibTool=true "$BinariesDir/Generate.sh" "$Command" $Params
+esac
