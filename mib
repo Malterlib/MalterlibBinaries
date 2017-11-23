@@ -12,7 +12,7 @@ if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
 		echo Please install git lfs
 		exit 1
 	fi
-	
+
 	if ! cat ~/.gitconfig | grep 'filter "lfs"' ; then
 		git lfs install
 	fi
@@ -57,11 +57,11 @@ if [[ $SysName ==  MINGW* ]] || [[ $SysName ==  CYGWIN* ]] || [[ $SysName ==  wi
 	DependencyFile=BuildSystem/Binaries/Binaries.MalterlibDependency
 
 	MToolSourceOnly=true source ./Binaries/Malterlib/MTool.sh
-	
+
 	if [ -e "$DependencyFile" ]; then
 		"$MToolExecutable" CheckDependencies Verbose=true "Directory=BuildSystem/Binaries"
 	fi
-	
+
 	if ! [ -e BuildSystem/Binaries.updated ]; then
 		"$MToolExecutable" DiffCopy "Binaries/Malterlib/General/Windows" "BuildSystem/Binaries/General"
 		"$MToolExecutable" DiffCopy "Binaries/Malterlib/*.sh" "BuildSystem/Binaries" "" 0
@@ -76,15 +76,13 @@ fi
 Command=$1
 shift
 
-Params="$@"
-
 case "$Command" in
 	generate)
-		"$BinariesDir/Generate.sh" $Params
+		"$BinariesDir/Generate.sh" "$@"
 	;;
 	setup_only)
 		exit 0
 	;;
 	*)
-		MalterlibTool=true "$BinariesDir/Generate.sh" "$Command" $Params
+		MalterlibTool=true "$BinariesDir/Generate.sh" "$Command" "$@"
 esac
