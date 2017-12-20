@@ -89,6 +89,19 @@ function DoEcho()
 	fi
 }
 
+function RunMTool()
+{
+	DoEcho "$MToolExecutable" "$@"
+	set +e
+	"$MToolExecutable" "$@"
+	MToolExit=$?
+	set -e
+
+	if [[ $MToolExit != 0 ]] ; then
+		exit $MToolExit
+	fi
+}
+
 function GenerateForVersion()
 {
 	if [[ "$Conf_Old" == "true" ]] ; then
@@ -102,18 +115,14 @@ function GenerateForVersion()
 
 	for f in $Files ; do
 		if [ "$Conf_Old" == "true" ] ; then
-			DoEcho "$MToolExecutable $ToolType $f Generator=$Generator OutDir=$PWD/BuildSystem/Old" "$@"
-			$MToolExecutable $ToolType "$f" "Generator=$Generator" "OutDir=$PWD/BuildSystem/Old" "$@"
+			RunMTool $ToolType "$f" "Generator=$Generator" "OutDir=$PWD/BuildSystem/Old" "$@"
 		elif [ "$Conf_Workspace" == "" ] ; then
-			DoEcho "$MToolExecutable $ToolType $f Generator=$Generator" "$@"
-			$MToolExecutable $ToolType "$f" "Generator=$Generator" "$@"
+			RunMTool $ToolType "$f" "Generator=$Generator" "$@"
 		else
-			DoEcho "$MToolExecutable $ToolType $f Generator=$Generator Workspace=$Conf_Workspace" "$@"
-			$MToolExecutable $ToolType "$f" "Generator=$Generator" "Workspace=$Conf_Workspace" "$@"
+			RunMTool $ToolType "$f" "Generator=$Generator" "Workspace=$Conf_Workspace" "$@"
 		fi
 	done
 }
-
 
 if [[ "$IsWindows" == "true" ]]; then
 	if [ ! "$Conf_Version" == "" ] ; then

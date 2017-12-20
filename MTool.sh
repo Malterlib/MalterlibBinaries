@@ -43,5 +43,12 @@ else
 fi
 
 if [[ "$MToolSourceOnly" != "true" ]]; then
-	$MToolExecutable "$@"
+	set +e
+	"$MToolExecutable" "$@"
+	MToolExit=$?
+	set -e
+
+	if [[ $MToolExit != 0 ]] ; then
+		exit $MToolExit
+	fi
 fi

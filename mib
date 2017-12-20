@@ -52,37 +52,56 @@ fi
 SysName=$(uname -s)
 
 BinariesDir="$PWD/Binaries/Malterlib"
-
-if [[ $SysName ==  MINGW* ]] || [[ $SysName ==  CYGWIN* ]] || [[ $SysName ==  windows* ]] ; then
-	DependencyFile=BuildSystem/Binaries/Binaries.MalterlibDependency
-
-	MToolSourceOnly=true source ./Binaries/Malterlib/MTool.sh
-
-	if [ -e "$DependencyFile" ]; then
-		"$MToolExecutable" CheckDependencies Verbose=true "Directory=BuildSystem/Binaries"
-	fi
-
-	if ! [ -e BuildSystem/Binaries.updated ]; then
-		"$MToolExecutable" DiffCopy "Binaries/Malterlib/General/Windows" "BuildSystem/Binaries/General"
-		"$MToolExecutable" DiffCopy "Binaries/Malterlib/*.sh" "BuildSystem/Binaries" "" 0
-		"$MToolExecutable" TouchOrCreate "BuildSystem/Binaries.updated"
-		ExcludePatterns="*/.git;*/.DS_Store"
-		"$MToolExecutable" BuildDependencies "OutputFile=$DependencyFile" "Output:BuildSystem/Binaries.updated" "Input:${BASH_SOURCE[0]}" "Find:Binaries/Malterlib/*;RIF;33;$ExcludePatterns"
-	fi
-
-	BinariesDir="$PWD/BuildSystem/Binaries"
-fi
-
 Command=$1
 shift
 
-case "$Command" in
-	generate)
-		"$BinariesDir/Generate.sh" "$@"
-	;;
-	setup_only)
-		exit 0
-	;;
-	*)
-		MalterlibTool=true "$BinariesDir/Generate.sh" "$Command" "$@"
-esac
+while true; do
+
+	if [[ $SysName ==  MINGW* ]] || [[ $SysName ==  CYGWIN* ]] || [[ $SysName ==  windows* ]] ; then
+		DependencyFile=BuildSystem/Binaries/Binaries.MalterlibDependency
+
+		MToolSourceOnly=true source ./Binaries/Malterlib/MTool.sh
+
+		if [ -e "$DependencyFile" ]; then
+			"$MToolExecutable" CheckDependencies Verbose=true "Directory=BuildSystem/Binaries"
+		fi
+
+		if ! [ -e BuildSystem/Binaries.updated ]; then
+			"$MToolExecutable" DiffCopy "Binaries/Malterlib/General/Windows" "BuildSystem/Binaries/General"
+			"$MToolExecutable" DiffCopy "Binaries/Malterlib/*.sh" "BuildSystem/Binaries" "" 0
+			"$MToolExecutable" TouchOrCreate "BuildSystem/Binaries.updated"
+			ExcludePatterns="*/.git;*/.DS_Store"
+			"$MToolExecutable" BuildDependencies "OutputFile=$DependencyFile" "Output:BuildSystem/Binaries.updated" "Input:${BASH_SOURCE[0]}" "Find:Binaries/Malterlib/*;RIF;33;$ExcludePatterns"
+		fi
+
+		BinariesDir="$PWD/BuildSystem/Binaries"
+	fi
+
+	case "$Command" in
+		generate)
+			set +e
+			"$BinariesDir/Generate.sh" "$@"
+			MToolExit=$?
+			set -e
+			if [[ $MToolExit == 3 ]]; then
+				echo MTool potentially updated, running command again
+				continue
+			fi
+		;;
+		setup_only)
+			exit 0
+		;;
+		*)
+			set +e
+			MalterlibTool=true "$BinariesDir/Generate.sh" "$Command" "$@"
+			MToolExit=$?
+			set -e
+			if [[ $MToolExit == 3 ]]; then
+				echo MTool potentially updated, running command again
+				continue
+			fi
+	esac
+
+	break
+
+done
