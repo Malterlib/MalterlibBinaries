@@ -91,6 +91,11 @@ while true; do
 		setup_only)
 			exit 0
 		;;
+		setup)
+			if [[ $SysName ==  Darwin* ]] ; then
+				./Malterlib/Tools/SetupOSX/setup.sh "$@"
+			fi
+		;;
 		*)
 			set +e
 			MalterlibTool=true "$BinariesDir/Generate.sh" "$Command" "$@"
