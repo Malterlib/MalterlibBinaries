@@ -79,6 +79,9 @@ while true; do
 
 	case "$Command" in
 		generate)
+			if [[ $SysName ==  Darwin* ]] ; then
+				./Malterlib/Tools/SetupOSX/setup.sh CheckSetup
+			fi
 			set +e
 			"$BinariesDir/Generate.sh" "$@"
 			MToolExit=$?
