@@ -6,6 +6,9 @@ set -e
 
 cd "$DIR"
 
+find Binaries/Malterlib -maxdepth 0 -type d -empty -delete
+find Malterlib/Core -maxdepth 0 -type d -empty -delete
+
 if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
 	# Make sure that lfs is installed
 	if ! git lfs > /dev/null ; then
