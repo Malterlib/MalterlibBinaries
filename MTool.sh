@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright © 2015 Hansoft AB
+# Copyright © 2015-2018 Nonna Holding AB
 # Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
