@@ -177,6 +177,8 @@ while true; do
 			if [[ $MToolExit == 3 ]]; then
 				echo MTool potentially updated, running command again
 				continue
+			elif [[ $MToolExit != 2 ]]; then
+				exit $MToolExit
 			fi
 
 			if $MissingSetup && [[ $SysName ==  Darwin* ]] && [ -e ./Malterlib/Tools/SetupOSX/setup.sh ]; then
@@ -200,6 +202,7 @@ while true; do
 				echo MTool potentially updated, running command again
 				continue
 			fi
+			exit $MToolExit
 	esac
 
 	break
