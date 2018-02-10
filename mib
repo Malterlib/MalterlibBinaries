@@ -193,6 +193,21 @@ while true; do
 				./Malterlib/Tools/SetupOSX/setup.sh "$@"
 			fi
 		;;
+		build)
+			./Malterlib/Core/BuildScripts/BuildWorkspace.sh "$@"
+		;;
+		build_target)
+			./Malterlib/Core/BuildScripts/BuildTarget.sh "$@"
+		;;
+		prebuild)
+			./Malterlib/Core/BuildScripts/Prebuild.sh "$@"
+		;;
+		postbuild)
+			./Malterlib/Core/BuildScripts/Postbuild.sh "$@"
+		;;
+		detect_system)
+			source ./Malterlib/Core/BuildScripts/DetectSystem.sh "$@"
+		;;
 		*)
 			set +e
 			MalterlibTool=true "$BinariesDir/Generate.sh" "$Command" "$@"
