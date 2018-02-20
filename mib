@@ -9,11 +9,11 @@ set -e
 cd "$DIR"
 
 if [ -e Binaries/Malterlib ]; then
-	find "$DIR/Binaries/Malterlib" -maxdepth 0 -type d -empty -delete
+	find "$DIR/Binaries/Malterlib" -maxdepth 0 -type d -empty -exec rmdir {} \;
 fi
 
 if [ -e Malterlib/Core ]; then
-	find "$DIR/Malterlib/Core" -maxdepth 0 -type d -empty -delete
+	find "$DIR/Malterlib/Core" -maxdepth 0 -type d -empty -exec rmdir {} \;
 fi
 
 if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
