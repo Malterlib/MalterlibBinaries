@@ -11,6 +11,9 @@ set -e
 Conf_Safe=false
 Conf_Echo=false
 Conf_Old=false
+MalterlibXcodeVersion=
+MalterlibVisualStudioVersion=
+
 {
 	OLDIFS="$IFS"
 	IFS=$'\n'
@@ -24,10 +27,10 @@ Conf_Old=false
 			Value=${LineCommands[1]}
 
 			if [[ "$Key" == "XcodeVersion" ]]; then
-				XcodeVersion=$Value
+				MalterlibXcodeVersion=$Value
 			fi
 			if [[ "$Key" == "VisualStudioVersion" ]]; then
-				VisualStudioVersion=$Value
+				MalterlibVisualStudioVersion=$Value
 			fi
 		done
 	fi
@@ -35,14 +38,14 @@ Conf_Old=false
 }
 
 if [[ $IsOSX == true ]] ; then
-	if [ ! "$XcodeVersion" == "" ]; then
-		Conf_Version=$XcodeVersion
+	if [ ! "$MalterlibXcodeVersion" == "" ]; then
+		Conf_Version=$MalterlibXcodeVersion
 	else
 		Conf_Version=`xcodebuild -version | grep Xcode | awk -F ' ' {'print $2'} | awk -F '.' {'print $1'}`
 	fi
 elif [[ $IsWindows == true ]] ; then
-	if [ ! "$VisualStudioVersion" == "" ]; then
-		Conf_Version=$VisualStudioVersion
+	if [ ! "$MalterlibVisualStudioVersion" == "" ]; then
+		Conf_Version=$MalterlibVisualStudioVersion
 	else
 		Conf_Version=
 	fi
