@@ -27,6 +27,10 @@ if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
 		git lfs install
 	fi
 
+	if [[ $SysName ==  MINGW* ]] || [[ $SysName ==  CYGWIN* ]] || [[ $SysName ==  windows* ]] ; then
+		git config --global core.symlinks true
+	fi
+
 	function OutputInfo()
 	{
 		echo $'\e[38;5;39m'"$@"$'\e[39m'
