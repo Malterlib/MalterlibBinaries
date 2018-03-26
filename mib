@@ -16,6 +16,10 @@ if [ -e Malterlib/Core ]; then
 	find "$DIR/Malterlib/Core" -maxdepth 0 -type d -empty -exec rmdir {} \;
 fi
 
+if [[ $SysName ==  MINGW* ]] || [[ $SysName ==  CYGWIN* ]] || [[ $SysName ==  windows* ]] ; then
+	mkdir -p /tmp
+fi
+
 if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
 	# Make sure that lfs is installed
 	if ! git lfs > /dev/null ; then
