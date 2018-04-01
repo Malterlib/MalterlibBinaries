@@ -8,11 +8,15 @@ set -e
 
 cd "$DIR"
 
+if [ -e .malterlib_no_core ] && [[ "$MalterlibNoCore" == "" ]]; then
+	MalterlibNoCore="true"
+fi
+
 if [ -e Binaries/Malterlib ]; then
 	find "$DIR/Binaries/Malterlib" -maxdepth 0 -type d -empty -exec rmdir {} \;
 fi
 
-if [ -e Malterlib/Core ]; then
+if [[ "$MalterlibNoCore" != "true" ]] && [ -e Malterlib/Core ]; then
 	find "$DIR/Malterlib/Core" -maxdepth 0 -type d -empty -exec rmdir {} \;
 fi
 
@@ -20,7 +24,7 @@ if [[ $SysName ==  MINGW* ]] || [[ $SysName ==  CYGWIN* ]] || [[ $SysName ==  wi
 	mkdir -p /tmp
 fi
 
-if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
+if ! [ -e Binaries/Malterlib ] || ([[ "$MalterlibNoCore" != "true" ]] && ! [ -e Malterlib/Core ]) ; then
 	# Make sure that lfs is installed
 	if ! git lfs > /dev/null ; then
 		echo Please install git lfs
@@ -91,7 +95,7 @@ if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
 		echo 
 	fi
 
-	if ! [ -e Malterlib/Core ]; then
+	if [[ "$MalterlibNoCore" != "true" ]] && ! [ -e Malterlib/Core ]; then
 
 		OutputInfo "Cloning Malterlib/Core"
 
@@ -116,7 +120,12 @@ if ! [ -e Binaries/Malterlib ] || ! [ -e Malterlib/Core ] ; then
 
 		OutputInfo "Cloning Binaries/Malterlib"
 
-		GitHash=`cat Malterlib/Core/*.MRepo | grep '\.\./\.\./Binaries/Malterlib ' | cut '-d ' -f 2 || true`
+		if [[ "$MalterlibNoCore" == "true" ]]; then
+			GitHash=`cat Malterlib/Core/*.MRepo | grep '$Binaries/Malterlib ' | cut '-d ' -f 2 || true`
+		else
+			GitHash=`cat Malterlib/Core/*.MRepo | grep '\.\./\.\./Binaries/Malterlib ' | cut '-d ' -f 2 || true`
+		fi
+
 		if [[ "$GitHash" != "" ]]; then
 			echo "Found commit hash in Malterlib/Core/*.MRepo files: `OutputNote "$GitHash"`"
 
