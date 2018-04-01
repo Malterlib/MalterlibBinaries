@@ -121,20 +121,22 @@ if ! [ -e Binaries/Malterlib ] || ([[ "$MalterlibNoCore" != "true" ]] && ! [ -e 
 		OutputInfo "Cloning Binaries/Malterlib"
 
 		if [[ "$MalterlibNoCore" == "true" ]]; then
-			GitHash=`cat Malterlib/Core/*.MRepo | grep '$Binaries/Malterlib ' | cut '-d ' -f 2 || true`
+			RepoFolder="./"
+			GitHash=`cat *.MRepo | grep '^Binaries/Malterlib ' | cut '-d ' -f 2 || true`
 		else
+			RepoFolder="Malterlib/Core/"
 			GitHash=`cat Malterlib/Core/*.MRepo | grep '\.\./\.\./Binaries/Malterlib ' | cut '-d ' -f 2 || true`
 		fi
 
 		if [[ "$GitHash" != "" ]]; then
-			echo "Found commit hash in Malterlib/Core/*.MRepo files: `OutputNote "$GitHash"`"
+			echo "Found commit hash in ${RepoFolder}*.MRepo files: `OutputNote "$GitHash"`"
 
 			git clone -n "$MalterlibRepoRoot/MalterlibBinaries.git" Binaries/Malterlib
 			pushd Binaries/Malterlib > /dev/null
 			git checkout -B master $GitHash
 			popd > /dev/null
 		else
-			OutputError "Cloud not find commit hash in Malterlib/Core/*.MRepo files using latest default branch"
+			OutputError "Cloud not find commit hash in ${RepoFolder}*.MRepo files using latest default branch"
 
 			git clone "$MalterlibRepoRoot/MalterlibBinaries.git" Binaries/Malterlib
 		fi
