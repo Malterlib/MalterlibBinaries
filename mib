@@ -24,6 +24,26 @@ if [[ $SysName ==  MINGW* ]] || [[ $SysName ==  CYGWIN* ]] || [[ $SysName ==  wi
 	mkdir -p /tmp
 fi
 
+function OutputInfo()
+{
+	echo $'\e[38;5;39m'"$@"$'\e[39m'
+}
+
+function OutputNote()
+{
+	echo $'\e[38;5;221m'"$@"$'\e[39m'
+}
+
+function OutputHeading()
+{
+	echo $'\e[38;5;118m'"$@"$'\e[39m'
+}
+
+function OutputError()
+{
+	echo $'\e[38;5;198m'"$@"$'\e[39m'
+}
+
 if ! [ -e Binaries/Malterlib ] || ([[ "$MalterlibNoCore" != "true" ]] && ! [ -e Malterlib/Core ]) ; then
 	# Make sure that lfs is installed
 	if ! git lfs > /dev/null ; then
@@ -38,26 +58,6 @@ if ! [ -e Binaries/Malterlib ] || ([[ "$MalterlibNoCore" != "true" ]] && ! [ -e 
 	if [[ $SysName ==  MINGW* ]] || [[ $SysName ==  CYGWIN* ]] || [[ $SysName ==  windows* ]] ; then
 		git config --global core.symlinks true
 	fi
-
-	function OutputInfo()
-	{
-		echo $'\e[38;5;39m'"$@"$'\e[39m'
-	}
-
-	function OutputNote()
-	{
-		echo $'\e[38;5;221m'"$@"$'\e[39m'
-	}
-
-	function OutputHeading()
-	{
-		echo $'\e[38;5;118m'"$@"$'\e[39m'
-	}
-
-	function OutputError()
-	{
-		echo $'\e[38;5;198m'"$@"$'\e[39m'
-	}
 
 	echo 
 	OutputHeading '/¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯\'
@@ -157,7 +157,6 @@ Command=$1
 shift
 
 while true; do
-
 	if [[ $SysName ==  MINGW* ]] || [[ $SysName ==  CYGWIN* ]] || [[ $SysName ==  windows* ]] ; then
 		DependencyFile=BuildSystem/Binaries/Binaries.MalterlibDependency
 
@@ -177,6 +176,39 @@ while true; do
 
 		BinariesDir="$PWD/BuildSystem/Binaries"
 	fi
+
+	function RunTests()
+	{
+		Start=$SECONDS
+
+		function OutputTime()
+		{
+			OutputNote "$((SECONDS-Start)) s"
+			Start=$SECONDS
+			echo
+		}
+
+		OutputInfo '[Generating]'
+		./mib generate Tests
+		source BuildSystem/SharedBuildSettings.sh
+		export MalterlibXCPrettyOptions="-t"
+		OutputTime
+
+		OutputInfo '[Building]'
+		./mib build Tests "$HostPlatform" "$HostArchitecture" "$1"
+		OutputTime
+
+		OutputInfo '[Testing]'
+		
+		if "$MalterlibDeployRoot/Tests/RunAllTests" --quiet ; then
+			OutputTime
+			OutputHeading Success
+		else
+			OutputTime
+			OutputError "Tests FAILED"
+			exit 1
+		fi
+	}
 
 	case "$Command" in
 		generate)
@@ -214,6 +246,16 @@ while true; do
 		;;
 		build)
 			./Malterlib/Core/BuildScripts/BuildWorkspace.sh "$@"
+		;;
+		test)
+			Config=Debug
+			if [[ "$1" != "" ]]; then
+				Config="$1"
+			fi
+			RunTests "$Config"
+		;;
+		test_release)
+			RunTests "Release (Tests)"
 		;;
 		build_target)
 			./Malterlib/Core/BuildScripts/BuildTarget.sh "$@"
