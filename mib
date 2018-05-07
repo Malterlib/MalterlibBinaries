@@ -44,6 +44,10 @@ function OutputError()
 	echo $'\e[38;5;198m'"$@"$'\e[39m'
 }
 
+if ! [ -e Binaries/Malterlib/LICENSE.Malterlib ]; then
+	rm -rf Binaries/Malterlib
+fi
+
 if ! [ -e Binaries/Malterlib ] || ([[ "$MalterlibNoCore" != "true" ]] && ! [ -e Malterlib/Core ]) ; then
 	# Make sure that lfs is installed
 	if ! git lfs > /dev/null ; then
