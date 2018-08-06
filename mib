@@ -46,6 +46,7 @@ function OutputError()
 
 if ! [ -e Binaries/Malterlib/LICENSE.Malterlib ]; then
 	rm -rf Binaries/Malterlib
+	rm -rf Malterlib/Core
 fi
 
 if ! [ -e Binaries/Malterlib ] || ([[ "$MalterlibNoCore" != "true" ]] && ! [ -e Malterlib/Core ]) ; then
